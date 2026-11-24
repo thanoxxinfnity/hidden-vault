@@ -1,11 +1,6 @@
 package com.example.hiddenvault
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.Intent
-import android.graphics.drawable.Icon
-import android.os.Build
-import androidx.annotation.RequiresApi
+
 
 /** Builds the pinned home-screen shortcut that opens the vault. */
 object ShortcutSpec {
