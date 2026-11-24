@@ -157,7 +157,7 @@ private fun PinPadBody(vm: VaultViewModel, modifier: Modifier) {
         Button(
             onClick = vm::submitPin,
             modifier = Modifier.padding(top = 20.dp),
-            enabled = vm.ui.pin.length == 4 || vm.ui.pin.length >= 4,
+
         ) { Text("Unlock") }
         if (vm.ui.pinError) {
             OutlinedButton(
