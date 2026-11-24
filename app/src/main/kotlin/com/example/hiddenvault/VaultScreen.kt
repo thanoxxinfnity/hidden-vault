@@ -169,8 +169,7 @@ private fun PinPadBody(vm: VaultViewModel, modifier: Modifier) {
 }
 
 @Composable
-private fun VaultBody(vm: VaultViewModel, ui: VaultUi, modifier: Modifier) {
-    Column(
+
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp),
