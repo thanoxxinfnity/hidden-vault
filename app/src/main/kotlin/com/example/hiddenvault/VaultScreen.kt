@@ -378,7 +378,4 @@ private fun KeypadKey(label: String, onClick: () -> Unit) {
     }
 }
 
-private val ui: VaultUi
-    @Composable
-    @Suppress("unused")
-    get() = LocalContext.current.let { error("unused") }
+
