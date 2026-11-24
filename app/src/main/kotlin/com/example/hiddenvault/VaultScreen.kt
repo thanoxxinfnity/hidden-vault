@@ -30,7 +30,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,14 +42,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 
-/**
- * Root screen: lock gate, app picker, hidden list and the quick-hide control.
- * Everything lives in one screen so a quick hide is always one tap away.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VaultScreen(vm: VaultViewModel = viewModel()) {
-    val ui by vm.ui
+    val ui = vm.ui
     val context = LocalContext.current
 
     LaunchedEffect(Unit) { vm.load() }
@@ -93,24 +88,12 @@ private fun SetupPinBody(vm: VaultViewModel, modifier: Modifier) {
     ) {
         Text("Create a PIN", style = MaterialTheme.typography.headlineSmall)
         Text(
-            "Four to eight digits. You type it every time you open this screen. " +
-                "If you lose the PIN the hidden list stays hidden, so keep it somewhere safe.",
+            "Four to eight digits. If you lose the PIN the hidden list stays hidden, so keep it safe.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        VaultCard {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Vault name on the icon", style = MaterialTheme.typography.labelSmall)
-                Text(
-                    "Use something plain like Gallery, Notes or Calculator. " +
-                        "The name and icon are read from the app resources.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
         PinPad(vm)
-        Button(onClick = vm::savePin, enabled = ui.pin.length in 4..8) { Text("Save PIN") }
+        Button(onClick = vm::savePin, enabled = vm.ui.pin.length in 4..8) { Text("Save PIN") }
     }
 }
 
@@ -124,11 +107,7 @@ private fun PinPadBody(vm: VaultViewModel, modifier: Modifier) {
         verticalArrangement = Arrangement.Center,
     ) {
         Text(vm.vaultLabel, style = MaterialTheme.typography.headlineSmall)
-        Text(
-            "Enter PIN",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        Text("Enter PIN", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Box(
             modifier = Modifier
                 .padding(vertical = 28.dp)
@@ -147,34 +126,33 @@ private fun PinPadBody(vm: VaultViewModel, modifier: Modifier) {
         }
         Keypad(onDigit = vm::onPinDigit, onDelete = vm::deletePinDigit)
         if (vm.ui.pinError) {
-            Text(
-                "Wrong PIN",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(top = 16.dp),
-            )
+            Text("Wrong PIN", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error, modifier = Modifier.padding(top = 16.dp))
         }
         Button(
             onClick = vm::submitPin,
             modifier = Modifier.padding(top = 20.dp),
-
+            enabled = vm.ui.pin.length >= 4,
         ) { Text("Unlock") }
         if (vm.ui.pinError) {
-            OutlinedButton(
-                onClick = { vm.resetVault() },
-                modifier = Modifier.padding(top = 8.dp),
-            ) { Text("Forgot PIN: clear the hidden list") }
+            OutlinedButton(onClick = { vm.resetVault() }, modifier = Modifier.padding(top = 8.dp)) { Text("Forgot PIN: clear the hidden list") }
         }
     }
 }
 
-
-
-
-
-                        "only place left that opens it. Android 10 or newer asks you to confirm " +
-                        "once when an icon is removed, and some launchers keep a copy in " +
-                        "their app list. Quick hide repeats the removal instantly.",
+@Composable
+private fun VaultBody(vm: VaultViewModel, ui: VaultUi, modifier: Modifier) {
+    val context = LocalContext.current
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        VaultCard {
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("${ui.hiddenCount} app(s) hidden", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "Hidden here means the icon is off your home screen. Quick hide repeats the removal instantly.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -194,52 +172,26 @@ private fun PinPadBody(vm: VaultViewModel, modifier: Modifier) {
             }
         }
 
-        Text(
-            "HIDDEN",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 4.dp),
-        )
+        Text("HIDDEN", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp))
 
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
+        LazyColumn(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             if (ui.hidden.isEmpty()) {
                 item(key = "empty") {
                     VaultCard {
                         Text("Nothing hidden yet", style = MaterialTheme.typography.titleMedium)
-                        Text(
-                            "Tap Hide a game to pick the games you want off the home screen.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(top = 4.dp),
-                        )
+                        Text("Tap Hide a game to pick the games you want off the home screen.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 4.dp))
                     }
                 }
             } else {
                 items(ui.hidden, key = { it.packageName }) { row ->
                     VaultCard {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        ) {
+                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(row.label, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Text(
-                                    row.packageName,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
+                                Text(row.packageName, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                             }
                             TextButton(onClick = { vm.launch(row.packageName) }) { Text("Open") }
-                            TextButton(
-                                onClick = { vm.unhide(row.packageName) },
-                                colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                            ) {
+                            TextButton(onClick = { vm.unhide(row.packageName) }, colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)) {
                                 Icon(Icons.Filled.Close, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Text(" Remove", modifier = Modifier.padding(start = 4.dp))
                             }
@@ -248,32 +200,9 @@ private fun PinPadBody(vm: VaultViewModel, modifier: Modifier) {
                 }
             }
             item(key = "footnote") {
-                Text(
-                    "Settings to try for stronger hiding",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 24.dp),
-                )
-                OutlinedButton(
-                    onClick = { vm.addHomeShortcut() },
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Text("Add hidden shortcut to home screen") }
-                TextButton(
-                    onClick = {
-                        context.startActivity(
-                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + context.packageName))
-                        )
-                    },
-                    modifier = Modifier.padding(top = 6.dp),
-                ) { Text("Open this app's system settings") }
-                Text(
-                    "For an app that is truly invisible in the launcher, install the vault with " +
-                        "a work profile or a launcher that supports app hiding. A normal app " +
-                        "cannot remove icons without a user prompt on modern Android.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 10.dp, bottom = 24.dp),
-                )
+                Text("Settings to try for stronger hiding", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 8.dp, bottom = 24.dp))
+                OutlinedButton(onClick = { vm.addHomeShortcut() }, modifier = Modifier.fillMaxWidth()) { Text("Add hidden shortcut to home screen") }
+                TextButton(onClick = { context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + context.packageName))) }, modifier = Modifier.padding(top = 6.dp)) { Text("Open this app's system settings") }
             }
         }
     }
@@ -282,11 +211,7 @@ private fun PinPadBody(vm: VaultViewModel, modifier: Modifier) {
 @Composable
 private fun PickerBody(vm: VaultViewModel, ui: VaultUi) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(
-            "Tap an app to hide it",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(top = 4.dp),
-        )
+        Text("Tap an app to hide it", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 4.dp))
         LazyColumn(modifier = Modifier.height(320.dp)) {
             items(ui.installed, key = { it.packageName }) { row ->
                 if (!row.hidden) {
@@ -301,11 +226,7 @@ private fun PickerBody(vm: VaultViewModel, ui: VaultUi) {
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(row.label, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Text(
-                                    row.packageName,
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                                Text(row.packageName, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             Icon(Icons.Filled.Add, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         }
@@ -318,13 +239,13 @@ private fun PickerBody(vm: VaultViewModel, ui: VaultUi) {
 }
 
 @Composable
+private fun PinPad(vm: VaultViewModel) {
+    Keypad(onDigit = vm::onPinDigit, onDelete = vm::deletePinDigit)
+}
+
+@Composable
 private fun Keypad(onDigit: (String) -> Unit, onDelete: () -> Unit) {
-    val rows = listOf(
-        listOf("1", "2", "3"),
-        listOf("4", "5", "6"),
-        listOf("7", "8", "9"),
-        listOf("", "0", "del"),
-    )
+    val rows = listOf(listOf("1", "2", "3"), listOf("4", "5", "6"), listOf("7", "8", "9"), listOf("", "0", "del"))
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         for (row in rows) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -353,14 +274,9 @@ private fun KeypadKey(label: String, onClick: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = when (label) {
-                "del" -> "<-"
-                else -> label
-            },
+            text = when (label) { "del" -> "<-" else -> label },
             style = MaterialTheme.typography.headlineSmall,
             color = if (label.isEmpty()) Color.Transparent else MaterialTheme.colorScheme.onSurface,
         )
     }
 }
-
-
