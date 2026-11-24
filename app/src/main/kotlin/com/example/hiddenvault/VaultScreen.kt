@@ -168,11 +168,7 @@ private fun PinPadBody(vm: VaultViewModel, modifier: Modifier) {
     }
 }
 
-@Composable
 
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         VaultCard {
