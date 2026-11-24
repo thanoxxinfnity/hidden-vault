@@ -1,11 +1,11 @@
 package com.example.hiddenvault
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.LauncherApps
 import android.os.Build
 import android.os.Process
-import android.os.UserManager
 
 /** Handles launching, hiding from the launcher and home-screen shortcuts. */
 class VaultLauncher(private val context: Context) {
@@ -18,7 +18,8 @@ class VaultLauncher(private val context: Context) {
     fun launch(packageName: String): Boolean {
         val la = launcherApps ?: return false
         return runCatching {
-            la.startMainActivity(packageName, null, user, null)
+            val cn = ComponentName(packageName, "")
+            la.startMainActivity(cn, null, user, null)
             true
         }.getOrElse {
             runCatching {
@@ -42,7 +43,7 @@ class VaultLauncher(private val context: Context) {
         val la = launcherApps ?: return false
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return false
         return runCatching {
-            la.hideActivity(packageName, null, user)
+            la.hideActivity(ComponentName(packageName, ""), null, user)
             true
         }.getOrElse { false }
     }
@@ -52,18 +53,14 @@ class VaultLauncher(private val context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val la = launcherApps ?: return false
             return runCatching {
-                la.pinShortcut(
-                    ShortcutSpec.vault(context, name),
-                    null,
-                    user,
-                )
+                val shortcut = ShortcutSpec.vault(context, name)
+                la.pinShortcut(shortcut, null)
                 true
             }.getOrElse { false }
         }
         val intent = Intent(Intent.ACTION_CREATE_SHORTCUT).apply {
             putExtra(Intent.EXTRA_SHORTCUT_NAME, name)
             putExtra(Intent.EXTRA_SHORTCUT_INTENT, ShortcutSpec.vaultIntent(context))
-            putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(context, R.mipmap.ic_launcher))
         }
         return runCatching { context.sendBroadcast(intent); true }.getOrDefault(false)
     }

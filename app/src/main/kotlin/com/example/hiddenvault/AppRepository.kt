@@ -24,10 +24,12 @@ data class AppRow(
 )
 
 /** Reads every installed app that has a launcher icon, using the LauncherApps API. */
-class AppRepository(private val pm: PackageManager) {
+class AppRepository(private val ctx: Context) {
+
+    private val pm: PackageManager = ctx.packageManager
 
     suspend fun loadInstalled(hiddenPackages: Set<String>): List<AppRow> = withContext(Dispatchers.IO) {
-        val launcher = pm.getSystemService(LauncherApps::class.java) ?: return@withContext emptyList()
+        val launcher = ctx.getSystemService(LauncherApps::class.java) ?: return@withContext emptyList()
         val me = Process.myUserHandle()
         val profiles: List<UserHandle> = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             launcher.profiles
@@ -45,7 +47,7 @@ class AppRepository(private val pm: PackageManager) {
             }
             for (info in items) {
                 val pkg = info.applicationInfo.packageName
-                if (pkg == pm.getPackageName()) continue
+                if (pkg == ctx.packageName) continue
                 if (rows.containsKey(pkg)) continue
                 val label = runCatching { launcher.getApplicationLabel(pkg, profile).toString() }
                     .getOrDefault(pkg)
