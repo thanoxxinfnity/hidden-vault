@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_label">Gallery</string>
+    <string name="vault_locked_title">Enter PIN</string>
+    <string name="vault_name">My Gallery</string>
+    <string name="vault_empty_title">Nothing hidden yet</string>
+    <string name="vault_empty_body">Tap + to hide your first game from this phone.</string>
+    <string name="vault_add">Hide a game</string>
+    <string name="vault_pin_setup_title">Create a PIN</string>
+    <string name="vault_pin_setup_body">4 to 8 digits. You will need this PIN every time you open the vault.</string>
+    <string name="vault_pin_save">Save PIN</string>
+    <string name="vault_quick_hide">Quick hide</string>
+    <string name="vault_launch_failed">Could not open that app</string>
+    <string name="vault_removed">App removed from the hidden list</string>
+    <string name="vault_pin_note">The game stays installed on this phone. Only the shortcut in your launcher disappears.</string>
+    <string name="vault_home_shortcut">Add hidden shortcut to home screen</string>
+    <string name="vault_shortcut_added">Shortcut added. Tap it to jump straight into the vault.</string>
+</resources>
