@@ -171,8 +171,7 @@ private fun PinPadBody(vm: VaultViewModel, modifier: Modifier) {
 
 
 
-                Text(
-                    "Hidden here means the icon is off your home screen and this app is the " +
+
                         "only place left that opens it. Android 10 or newer asks you to confirm " +
                         "once when an icon is removed, and some launchers keep a copy in " +
                         "their app list. Quick hide repeats the removal instantly.",
