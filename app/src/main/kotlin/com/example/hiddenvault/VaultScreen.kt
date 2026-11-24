@@ -170,9 +170,7 @@ private fun PinPadBody(vm: VaultViewModel, modifier: Modifier) {
 
 
 
-        VaultCard {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("${ui.hiddenCount} app(s) hidden", style = MaterialTheme.typography.titleMedium)
+
                 Text(
                     "Hidden here means the icon is off your home screen and this app is the " +
                         "only place left that opens it. Android 10 or newer asks you to confirm " +
