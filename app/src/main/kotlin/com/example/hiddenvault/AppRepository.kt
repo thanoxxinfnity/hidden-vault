@@ -1,9 +1,12 @@
 package com.example.hiddenvault
 
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.Process
+import android.os.UserHandle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -11,7 +14,7 @@ import kotlinx.coroutines.withContext
 data class VaultEntry(
     val packageName: String,
     val label: String,
-    val iconKey: android.os.UserHandle,
+    val iconKey: UserHandle,
 )
 
 data class AppRow(
@@ -24,9 +27,9 @@ data class AppRow(
 class AppRepository(private val pm: PackageManager) {
 
     suspend fun loadInstalled(hiddenPackages: Set<String>): List<AppRow> = withContext(Dispatchers.IO) {
-        val launcher = pm.getSystemService(LauncherApps::class.java)
-        val me = android.os.Process.myUserHandle()
-        val profiles = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val launcher = pm.getSystemService(LauncherApps::class.java) ?: return@withContext emptyList()
+        val me = Process.myUserHandle()
+        val profiles: List<UserHandle> = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             launcher.profiles
         } else {
             listOf(me)
@@ -42,7 +45,7 @@ class AppRepository(private val pm: PackageManager) {
             }
             for (info in items) {
                 val pkg = info.applicationInfo.packageName
-                if (pkg == pm.packageNameOrSelf()) continue
+                if (pkg == pm.getPackageName()) continue
                 if (rows.containsKey(pkg)) continue
                 val label = runCatching { launcher.getApplicationLabel(pkg, profile).toString() }
                     .getOrDefault(pkg)

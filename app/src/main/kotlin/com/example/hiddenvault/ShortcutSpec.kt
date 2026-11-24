@@ -1,6 +1,8 @@
 package com.example.hiddenvault
 
-
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 
 /** Builds the pinned home-screen shortcut that opens the vault. */
 object ShortcutSpec {
@@ -14,13 +16,12 @@ object ShortcutSpec {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.N_MR1)
+    @androidx.annotation.RequiresApi(Build.VERSION_CODES.N_MR1)
     fun vault(context: Context, name: String): android.content.pm.ShortcutInfo {
-
         return android.content.pm.ShortcutInfo.Builder(context, ID)
             .setShortLabel(name)
             .setLongLabel(name)
-            .setIcon(icon)
+            .setIcon(android.graphics.drawable.Icon.createWithResource(context, android.R.drawable.sym_def_app_icon))
             .setIntent(vaultIntent(context))
             .build()
     }
