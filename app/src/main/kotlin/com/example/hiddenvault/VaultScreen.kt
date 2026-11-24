@@ -169,8 +169,7 @@ private fun PinPadBody(vm: VaultViewModel, modifier: Modifier) {
 }
 
 
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
+
         VaultCard {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text("${ui.hiddenCount} app(s) hidden", style = MaterialTheme.typography.titleMedium)
