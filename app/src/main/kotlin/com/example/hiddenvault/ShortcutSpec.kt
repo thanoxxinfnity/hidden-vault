@@ -16,11 +16,7 @@ object ShortcutSpec {
 
     @RequiresApi(Build.VERSION_CODES.N_MR1)
     fun vault(context: Context, name: String): android.content.pm.ShortcutInfo {
-        val icon = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Icon.createWithResource(context, R.mipmap.ic_launcher)
-        } else {
-            Icon.createWithResource(context, R.mipmap.ic_launcher)
-        }
+
         return android.content.pm.ShortcutInfo.Builder(context, ID)
             .setShortLabel(name)
             .setLongLabel(name)
