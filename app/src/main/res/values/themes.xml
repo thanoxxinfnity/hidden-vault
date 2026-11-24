@@ -1,9 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.HiddenVault" parent="android:style/Theme.Material.Light.NoActionBar">
-        <item name="android:fontFamily">sans</item>
-        <item name="android:statusBarColor">#FF101014</item>
-        <item name="android:navigationBarColor">#FF101014</item>
-        <item name="android:windowBackground">#FF101014</item>
-    </style>
+    <style name="Theme.HiddenVault" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>
